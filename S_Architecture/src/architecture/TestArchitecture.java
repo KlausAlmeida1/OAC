@@ -582,6 +582,7 @@ public class TestArchitecture {
 		assertTrue("ldi".equals(commands.get(7)));
 		assertTrue("inc".equals(commands.get(8)));
 		assertTrue("moveRegReg".equals(commands.get(9)));
+		assertTrue("addRegReg".equals(commands.get(10)));
 	}
 	
 	@Test

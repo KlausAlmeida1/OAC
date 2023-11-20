@@ -55,7 +55,12 @@ public class Architecture {
 		IR = new Register("IR", extbus1, intbus2);
 		RPG = new Register("RPG0", extbus1, intbus1);
 		RPG1 = new Register ("RPG1", extbus1, intbus1);
+		RPG2 = new Register ("RPG2", extbus1, intbus1);
+		RPG3 = new Register ("RPG3", extbus1, intbus1);
 		Flags = new Register(2, intbus2);
+		stackBotton = new Register("StackBotton", intbus2);
+		stackTop = new Register("StackTop",intbus2);
+		
 		fillRegistersList();
 		ula = new Ula(intbus1, intbus2);
 		statusMemory = new Memory(2, extbus1);
@@ -75,9 +80,13 @@ public class Architecture {
 		registersList = new ArrayList<Register>();
 		registersList.add(RPG);
 		registersList.add(RPG1);
+		registersList.add(RPG2);
+		registersList.add(RPG3);
 		registersList.add(PC);
 		registersList.add(IR);
 		registersList.add(Flags);
+		registersList.add(StackBotton);
+		registersList.add(StackTop);
 	}
 
 	/**
@@ -163,6 +172,7 @@ public class Architecture {
 	/**
 	 * This method fills the commands list arraylist with all commands used in this architecture
 	 */
+
 	protected void fillCommandsList() {
 		commandsList = new ArrayList<String>();
 		commandsList.add("add");   //0
@@ -175,8 +185,41 @@ public class Architecture {
 		commandsList.add("ldi");   //7
 		commandsList.add("inc");   //8		
 		commandsList.add("moveRegReg"); //9
+		commandsList.add("addRegReg");  // 10
 	}
 
+	protected void pcMaisMais(){
+		PC.internalRead();
+		ula.internalStore(1);
+		ula.inc();
+		ula.internalRead(1);
+		PC.internalStore();
+	}
+
+	protected void addRegReg(){
+		pcMaisMais();
+
+		PC.read(); 
+		memory.read(); // the second register
+		demux.setValue(extbus1.get()); //points to the correct register
+		registersInternalRead(); //starts the read from the register 
+		ula.store(0)
+
+		pcMaisMais();
+
+		PC.read();
+		memory.read(); // the second register
+		demux.setValue(extbus1.get()); //points to the correct register
+		registersInternalRead(); //starts the read from the register
+
+		ula.store(1);
+		ula.add();
+		ula.internalRead(0);
+		demux.setValue(extbus1.get()); //points to the correct register
+		registersInternalStore();
+
+		pcMaisMais();
+	}
 	
 	/**
 	 * This method is used after some ULA operations, setting the flags bits according the result.
@@ -231,11 +274,8 @@ public class Architecture {
 	 * @param address
 	 */
 	public void add() {
-		PC.internalRead();
-		ula.internalStore(1);
-		ula.inc();
-		ula.internalRead(1);
-		PC.internalStore(); //now PC points to the parameter address
+		pcMaisMais();
+		 //now PC points to the parameter address
 		RPG.internalRead();
 		ula.store(0); //the rpg value is in ULA (0). This is the first parameter
 		PC.read(); 
