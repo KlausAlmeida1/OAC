@@ -18,19 +18,22 @@ public class Architecture {
 	private boolean simulation; //this boolean indicates if the execution is done in simulation mode.
 								//simulation mode shows the components' status after each instruction
 	
-	
 	private boolean halt;
+    	private int memorySize;
 	private Bus extbus1;
 	private Bus intbus1;
 	private Bus intbus2;
 	private Memory memory;
 	private Memory statusMemory;
-	private int memorySize;
 	private Register PC;
 	private Register IR;
 	private Register RPG;
 	private Register RPG1;
+    	private Register RPG2;
+    	private Register RPG3;
 	private Register Flags;
+    	private Register stackTop;
+    	private Register stackBotton;
 	private Ula ula;
 	private Demux demux; //only for multiple register purposes
 	
