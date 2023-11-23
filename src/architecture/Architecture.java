@@ -1066,19 +1066,34 @@ public class Architecture {
 	 * @param address
 	 */
 	public void inc() {
-		RPG.internalRead();
+		pcMaisMais();
+		PC.read();
+		memory.read();
+		demux.setValue(extbus1.get()); //points to the correct register
+		registersInternalRead();
 		ula.store(1);
 		ula.inc();
 		ula.read(1);
 		setStatusFlags(intbus1.get());
-		RPG.internalStore();
-		PC.internalRead(); //we need to make PC points to the next instruction address
+		demux.setValue(extbus1.get()); //points to the correct register
+		registersInternalStore();
+		pcMaisMais();
+	}
+	public void call(){
+		pcMaisMais();
+		PC.internalRead();
 		ula.internalStore(1);
 		ula.inc();
 		ula.internalRead(1);
-		PC.internalStore(); //now PC points to the next instruction. We go back to the FETCH status.
+		stackTop.store();
+		PC.read();
+		memory.read();
+		PC.store();
 	}
-	
+	public void ret(){
+		stackTop.read();
+		PC.internalStore();
+	}
 	/**
 	 * This method implements the microprogram for
 	 * 					move <reg1> <reg2> 
@@ -1156,20 +1171,19 @@ public class Architecture {
 		pcMaisMais(); 
 	}
 	public void moveRegReg() {
-		pcMaisMais(); //now PC points to the first parameter (the first reg id)
+		pcMaisMais(); 
 		PC.read();
 		memory.read();
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get()); 
 		registersInternalRead();
 		pcMaisMais();
 		PC.read();
 		memory.read();
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get()); 
 		registersInternalStore();
 		pcMaisMais();
 	}
 	public void moveImmReg() {
-
 		pcMaisMais(); 
 		PC.read();
 		memory.read();
