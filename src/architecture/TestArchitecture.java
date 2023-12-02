@@ -14,46 +14,130 @@ public class TestArchitecture {
 
 		/* a complete test (for visual purposes only).
 		 *  a single code as follows
-		 *	ldi 2
-		 *	store 40
-		 *	ldi -4
-		 *	point:
-		 *	store 41  //mem[41]=-4 (then -3, -2, -1, 0)
-		 *	read 40
-		 *	add 40    //mem[40] + mem[40]
-		 *	store 40  //result must be in 40
-		 *	read 41
-		 *	inc
-		 *	jn point
+		 * 
+		 *	addRegReg 1 2
+		 *  addMemReg 69 2
+		 *  addRegMem 3 100
+		 *  addImmReg 10 1
+		 *  jmp 3
+		 *  subRegReg 0 1
+		 *  jn 3
+		 *  subMemReg 120 1
+		 *  jz 6
+		 *  call 56
+		 *  subRegMem 2 111
+		 *  subImmReg 45 1
+		 *  jeq 1 2 10
+		 *  moveMemReg  66 3
+		 *  inc 1
+		 *  moveRegMem 2 78
+		 *  jneq 2 3 6      
+		 *  moveRegReg 0 3
+		 *  ret	
+		 *  jgt 1 0 14
+		 *  moveImmReg 100 1
+		 *  jlw 2 1 56
 		 *	end
 		 */
+
 		Architecture arch = new Architecture(true);
-		// MODIFICAR
-		arch.getMemory().getDataList()[0]=7;
-		arch.getMemory().getDataList()[1]=2;
-		arch.getMemory().getDataList()[2]=6;
-		arch.getMemory().getDataList()[3]=40;
-		arch.getMemory().getDataList()[4]=7;
-		arch.getMemory().getDataList()[5]=-4;
-		arch.getMemory().getDataList()[6]=6;
-		arch.getMemory().getDataList()[7]=41;
-		arch.getMemory().getDataList()[8]=5;
-		arch.getMemory().getDataList()[9]=40;
-		arch.getMemory().getDataList()[10]=0;
-		arch.getMemory().getDataList()[11]=40;
-		arch.getMemory().getDataList()[12]=6;
-		arch.getMemory().getDataList()[13]=40;
-		arch.getMemory().getDataList()[14]=5;
-		arch.getMemory().getDataList()[15]=41;
-		arch.getMemory().getDataList()[16]=8;
-		arch.getMemory().getDataList()[17]=4;
-		arch.getMemory().getDataList()[18]=6;
-		arch.getMemory().getDataList()[19]=-1;
-		arch.getMemory().getDataList()[40]=0;
-		arch.getMemory().getDataList()[41]=0;
+
+		arch.getMemory().getDataList()[0]=0;
+		arch.getMemory().getDataList()[1]=1;
+		arch.getMemory().getDataList()[2]=2;
+
+		arch.getMemory().getDataList()[3]=1;
+		arch.getMemory().getDataList()[4]=69;
+		arch.getMemory().getDataList()[5]=2;
+
+		arch.getMemory().getDataList()[6]=2;
+		arch.getMemory().getDataList()[7]=3;
+		arch.getMemory().getDataList()[8]=100;
+		
+		arch.getMemory().getDataList()[9]=3;
+		arch.getMemory().getDataList()[10]=10;
+		arch.getMemory().getDataList()[11]=1;
+
+		arch.getMemory().getDataList()[12]=13;
+		arch.getMemory().getDataList()[13]=3;
+
+		arch.getMemory().getDataList()[14]=4;
+		arch.getMemory().getDataList()[15]=0;
+		arch.getMemory().getDataList()[16]=1;
+
+		arch.getMemory().getDataList()[17]=15;
+		arch.getMemory().getDataList()[18]=3;
+		
+		arch.getMemory().getDataList()[19]=5;
+		arch.getMemory().getDataList()[20]=120;
+		arch.getMemory().getDataList()[21]=1;
+
+		arch.getMemory().getDataList()[22]=14;
+		arch.getMemory().getDataList()[23]=6;
+
+		arch.getMemory().getDataList()[24]=20;
+		arch.getMemory().getDataList()[25]=56;    
+
+		arch.getMemory().getDataList()[26]=6;
+		arch.getMemory().getDataList()[27]=2;
+		arch.getMemory().getDataList()[28]=111;
+
+		arch.getMemory().getDataList()[29]=7;
+		arch.getMemory().getDataList()[30]=45;
+		arch.getMemory().getDataList()[31]=1;
+
+		arch.getMemory().getDataList()[32]=16;
+		arch.getMemory().getDataList()[33]=1;
+		arch.getMemory().getDataList()[34]=2;
+		arch.getMemory().getDataList()[35]=10;
+
+		arch.getMemory().getDataList()[36]=8;
+		arch.getMemory().getDataList()[37]=66;
+		arch.getMemory().getDataList()[38]=3;
+
+		arch.getMemory().getDataList()[39]=12;
+		arch.getMemory().getDataList()[40]=1;
+
+		arch.getMemory().getDataList()[41]=9;
+		arch.getMemory().getDataList()[42]=2;
+		arch.getMemory().getDataList()[43]=78;
+
+		arch.getMemory().getDataList()[44]=17;
+		arch.getMemory().getDataList()[45]=2;
+		arch.getMemory().getDataList()[46]=3;
+		arch.getMemory().getDataList()[47]=6;
+
+		arch.getMemory().getDataList()[48]=10;
+		arch.getMemory().getDataList()[49]=0;
+		arch.getMemory().getDataList()[50]=3;
+
+		arch.getMemory().getDataList()[51]=21;
+
+		arch.getMemory().getDataList()[52]=18;
+		arch.getMemory().getDataList()[53]=1;
+		arch.getMemory().getDataList()[54]=0;
+		arch.getMemory().getDataList()[55]=14;
+
+		arch.getMemory().getDataList()[56]=11;
+		arch.getMemory().getDataList()[57]=100;
+		arch.getMemory().getDataList()[58]=1;
+
+		arch.getMemory().getDataList()[59]=19;
+		arch.getMemory().getDataList()[60]=2;
+		arch.getMemory().getDataList()[61]=1;
+		arch.getMemory().getDataList()[62]=56;
+
+		arch.getMemory().getDataList()[63]=-1;
+
+		arch.getMemory().getDataList()[66]=2;
+		arch.getMemory().getDataList()[69]= 93;
+		arch.getMemory().getDataList()[78]=-61;
+		arch.getMemory().getDataList()[100]= 21;
+		arch.getMemory().getDataList()[111]=223;
+		arch.getMemory().getDataList()[120]=-34;
+
 		//now the program and the variables are stored. we can run
 		arch.controlUnitEexec();
-		
 	}
 
 	@Test
@@ -1075,18 +1159,34 @@ public class TestArchitecture {
 		Architecture arch = new Architecture();
 		ArrayList<String> commands = arch.getCommandsList();
 
-		assertTrue("add".equals(commands.get(0)));
-		assertTrue("sub".equals(commands.get(1)));
-		assertTrue("jmp".equals(commands.get(2)));
-		assertTrue("jz".equals(commands.get(3)));
-		assertTrue("jn".equals(commands.get(4)));
-		assertTrue("read".equals(commands.get(5)));
-		assertTrue("store".equals(commands.get(6)));
-		assertTrue("ldi".equals(commands.get(7)));
-		assertTrue("inc".equals(commands.get(8)));
-		assertTrue("moveRegReg".equals(commands.get(9)));
+		assertTrue("addRegReg".equals(commands.get(0)));
+		assertTrue("addMemReg".equals(commands.get(1)));
+		assertTrue("addRegMem".equals(commands.get(2)));
+		assertTrue("addImmReg".equals(commands.get(3)));
 
-		// MODIFICAR
+		assertTrue("subRegReg".equals(commands.get(4)));
+		assertTrue("subMemReg".equals(commands.get(5)));
+		assertTrue("subRegMem".equals(commands.get(6)));
+		assertTrue("subImmReg".equals(commands.get(7)));
+
+		assertTrue("moveMemReg".equals(commands.get(8)));
+		assertTrue("moveRegMem".equals(commands.get(9)));
+		assertTrue("moveRegMem".equals(commands.get(10)));
+		assertTrue("moveImmReg".equals(commands.get(11)));
+
+		assertTrue("inc".equals(commands.get(12)));
+
+		assertTrue("jmp".equals(commands.get(13)));
+		assertTrue("jz".equals(commands.get(14)));
+		assertTrue("jn".equals(commands.get(15)));
+
+		assertTrue("jeq".equals(commands.get(16)));
+		assertTrue("jneq".equals(commands.get(17)));
+		assertTrue("jgt".equals(commands.get(18)));
+		assertTrue("jlw".equals(commands.get(19)));
+
+		assertTrue("call".equals(commands.get(20)));
+		assertTrue("ret".equals(commands.get(21)));
 	}
 	
 	@Test
