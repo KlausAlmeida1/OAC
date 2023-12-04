@@ -55,8 +55,8 @@ public class Architecture {
 		RPG2 = new Register ("RPG2", extbus1, intbus1);
 		RPG3 = new Register ("RPG3", extbus1, intbus1);
 		Flags = new Register (2, intbus2);
-		StackBotton = new Register("StackBotton", 20, intbus2);
-		StackTop = new Register("StackTop", 20, intbus2);
+		StackBotton = new Register("StackBotton", intbus2, intbus2);   // modifiquei
+		StackTop = new Register("StackTop", intbus2, intbus2);
 		fillRegistersList();
 
 		ula = new Ula(intbus1, intbus2);
@@ -99,7 +99,6 @@ public class Architecture {
 		simulation = false;
 	}
 
-	
 	public Architecture(boolean sim) {
 		componentsInstances();
 		
@@ -155,12 +154,12 @@ public class Architecture {
 		return Flags;
 	}
 
-    protected Register getStackBotton() {
-		return StackBotton;
+	protected Register getStackTop() {
+		return StackTop;
 	}
 
-    protected Register getStackTop() {
-		return StackTop;
+    protected Register getStackBotton() {
+		return StackBotton;
 	}
 
 	protected Ula getUla() {
@@ -169,6 +168,49 @@ public class Architecture {
 
 	public ArrayList<String> getCommandsList() {
 		return commandsList;
+	}
+
+	protected int getDataStackTop() {
+		boolean emptyStack = StackTop.getData() == StackBotton.getData();
+
+		if (emptyStack) 
+			return null;
+
+		// StackTop points to a position below  
+		int position = StackTop.getData()+1;
+		intbus2.put(position);
+		StackTop.store();
+
+		// Saved data
+		int data = memory.getDataList()[position];
+
+		// Data removed from memory
+		memory.getDataList()[position]=0;
+
+		// Bus get the data
+		intbus2.put(data);
+		return true;
+	}
+
+	protected boolean setDataStackTop() {
+		boolean fullMemory = memory.getDataList()[StackTop] != 0;
+
+		if (fullMemory) 
+			return false;
+		
+		// Mem[StackTop] = dataBus
+ 		int position = StackTop.getData();
+		int data = intbus2.get();
+		memory.getDataList()[position] = data;
+
+		// StackTop points to a position above 
+		intbus2.put(position-1);
+		StackTop.store();
+
+		// Replacing the data on the bus
+		intbus2.put(data);
+
+		return true;
 	}
 
 
@@ -180,36 +222,38 @@ public class Architecture {
 
 	protected void fillCommandsList() {    
 		commandsList = new ArrayList<String>();
-		commandsList.add("addRegReg");   // 0
-		commandsList.add("addMemReg");   // 1
-		commandsList.add("addRegMem");   // 2  
-		commandsList.add("addImmReg");   // 3
+        
+		commandsList.add("addRegReg");   // 0 -
+		commandsList.add("addMemReg");   // 1 -
+		commandsList.add("addRegMem");   // 2 -
+		commandsList.add("addImmReg");   // 3 -
 
-		commandsList.add("subRegReg");   // 4
-		commandsList.add("subMemReg");   // 5
-		commandsList.add("subRegMem");   // 6
-		commandsList.add("subImmReg");   // 7
+		commandsList.add("subRegReg");   // 4 -
+		commandsList.add("subMemReg");   // 5 -
+		commandsList.add("subRegMem");   // 6 -
+		commandsList.add("subImmReg");   // 7 -
 
-        commandsList.add("moveMemReg");  // 8 
-		commandsList.add("moveRegMem");  // 9
-		commandsList.add("moveRegReg");  // 10
-		commandsList.add("moveImmReg");  // 11        
+        commandsList.add("moveMemReg");  // 8 -
+		commandsList.add("moveRegMem");  // 9 -
+		commandsList.add("moveRegReg");  // 10 -
+		commandsList.add("moveImmReg");  // 11 -        
 
-		commandsList.add("inc");         // 12
+		commandsList.add("inc");         // 12 -
 
-		commandsList.add("jmp");         // 13
-		commandsList.add("jz");          // 14 
-		commandsList.add("jn");          // 15
-        commandsList.add("jeq");         // 16  
-        commandsList.add("jneq");        // 17
-        commandsList.add("jgt");         // 18
-        commandsList.add("jlw");         // 19
+		commandsList.add("jmp");         // 13 -
+		commandsList.add("jz");          // 14 -
+		commandsList.add("jn");          // 15 -
 
-        commandsList.add("call");        // 20
-        commandsList.add("ret");         // 21
+        commandsList.add("jeq");         // 16 -  
+        commandsList.add("jneq");        // 17 -
+        commandsList.add("jgt");         // 18 -
+        commandsList.add("jlw");         // 19 -
+
+        commandsList.add("call");        // 20 -
+        commandsList.add("ret");         // 21 -
 	}
 
-	protected void pcMaisMais(){
+	protected void pcMaisMais() {
 		PC.internalRead();
 		ula.internalStore(1);
 		ula.inc();
@@ -217,7 +261,9 @@ public class Architecture {
 		PC.internalStore();
 	}
 
-	protected void addRegReg(){
+	// add's
+
+	protected void addRegReg() {
 		pcMaisMais();
 
 		PC.read(); 
@@ -244,7 +290,7 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void addMemReg(){
+	protected void addMemReg() {
 		pcMaisMais();
 
 		PC.internalRead();
@@ -276,7 +322,7 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void addRegMem(){
+	protected void addRegMem() {
 		pcMaisMais();
 		//Pegar o valor do registrador e guardar na ULA
 		PC.read();
@@ -347,7 +393,9 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void subRegReg(){
+	// sub's
+
+	protected void subRegReg() {
 		pcMaisMais();
 
 		PC.read(); 
@@ -374,7 +422,7 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void subMemReg(){
+	protected void subMemReg() {
 		pcMaisMais();
 
 		PC.internalRead();
@@ -409,7 +457,7 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void subRegMem(){
+	protected void subRegMem() {
 		pcMaisMais();
 		//Pegar o valor do registrador e guardar na ULA
 		PC.read();
@@ -447,7 +495,7 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	protected void subImmReg(){
+	protected void subImmReg() {
 		pcMaisMais();
 
 		//Guardar o valor do PC
@@ -479,6 +527,8 @@ public class Architecture {
 		
 		pcMaisMais();
 	}
+
+	// move's
 
     /**
 	 * This method implements the microprogram for
@@ -629,7 +679,9 @@ public class Architecture {
 		pcMaisMais();
 	}
 
-	public void jmp(){
+	// Desvios
+
+	public void jmp() {
 		//PC++
 		pcMaisMais();
 
@@ -638,10 +690,10 @@ public class Architecture {
 		PC.store();
 	}
 
-	public void jn(){
+	public void jn() {
 		//PC++
 		pcMaisMais();
-		if (Flags.getBit(1)==1){
+		if (Flags.getBit(1)==1) {
 			PC.read();
 			memory.read();
 			PC.store();
@@ -652,11 +704,11 @@ public class Architecture {
 		}
 	}
 
-	public void jz(){
+	public void jz() {
 		//PC++
 		pcMaisMais();
 
-		if (Flags.getBit(0)==1){
+		if (Flags.getBit(0)==1) {
 			PC.read();
 			memory.read();
 			PC.store();
@@ -689,7 +741,7 @@ public class Architecture {
 		setStatusFlags(intbus2.get());
 		
 
-		if (Flags.getBit(0)==1){
+		if (Flags.getBit(0)==1) {
 			pcMaisMais();
 
 			PC.read();
@@ -706,7 +758,7 @@ public class Architecture {
 		//PC++
 		pcMaisMais();
 
-		if (Flags.getBit(0)!=1){
+		if (Flags.getBit(0)!=1) {
 			PC.read();
 			memory.read();
 			PC.store();
@@ -717,7 +769,7 @@ public class Architecture {
 		}
 	}
 
-	public void jgt(){
+	public void jgt() {
 		pcMaisMais();
 
 		PC.read(); 
@@ -739,7 +791,7 @@ public class Architecture {
 		setStatusFlags(intbus2.get());
 		
 
-		if (Flags.getBit(0)==0 && Flags.getBit(1)==0){
+		if (Flags.getBit(0)==0 && Flags.getBit(1)==0) {
 			pcMaisMais();
 
 			PC.read();
@@ -752,7 +804,7 @@ public class Architecture {
 		}
 	}
 
-	public void jlw(){
+	public void jlw() {
 		pcMaisMais();
 
 		PC.read(); 
@@ -774,7 +826,7 @@ public class Architecture {
 		setStatusFlags(intbus2.get());
 		
 
-		if (Flags.getBit(1)==1){
+		if (Flags.getBit(1)==1) {
 			pcMaisMais();
 			PC.read();
 			memory.read();
@@ -798,10 +850,11 @@ public class Architecture {
 		PC.store();
 	}
 
-	public void ret(){
+	public void ret() {
 		StackTop.read();
 		PC.internalStore();
 	}
+
 
 	/**
 	 * This method is used after some ULA operations, setting the flags bits according the result.
@@ -865,18 +918,19 @@ public class Architecture {
 	 * @throws IOException 
 	 */
 	public void readExec(String filename) throws IOException {
-		   BufferedReader br = new BufferedReader(new		 
-		   FileReader(filename+".dxf"));
-		   String linha;
-		   int i=0;
-		   while ((linha = br.readLine()) != null) {
-			     extbus1.put(i);
-			     memory.store();
-			   	 extbus1.put(Integer.parseInt(linha));
-			     memory.store();
-			     i++;
-			}
-			br.close();
+		BufferedReader br = new BufferedReader(new		 
+		FileReader(filename+".dxf"));
+		String linha;
+		int i=0;
+
+		while ((linha = br.readLine()) != null) {
+			extbus1.put(i);
+			memory.store();
+			extbus1.put(Integer.parseInt(linha));
+			memory.store();
+			i++;
+		}
+		br.close();
 	}
 	
 	/**
@@ -888,7 +942,6 @@ public class Architecture {
 			fetch();
 			decodeExecute();
 		}
-
 	}
 	
 
@@ -898,10 +951,11 @@ public class Architecture {
 	 * according the command.
 	 * And the execute proccess, that is the execution itself of the command
 	 */
-	private void decodeExecute() {
+	private void decodeExecute() {   // MODIFICAR
 		IR.internalRead(); //the instruction is in the internalbus2
 		int command = intbus2.get();
 		simulationDecodeExecuteBefore(command);
+
 		switch (command) {
 		case 0:
 			add();
