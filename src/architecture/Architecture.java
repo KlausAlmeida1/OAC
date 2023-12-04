@@ -294,7 +294,7 @@ public class Architecture {
 		pcMaisMais();
 
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		
 		PC.read(); 
 		memory.read(); // the second register
@@ -302,7 +302,7 @@ public class Architecture {
 		PC.externalStore();
 		PC.internalRead();
 		ula.internalStore(0);
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalRead();
 		pcMaisMais();
 		
@@ -333,7 +333,7 @@ public class Architecture {
 		pcMaisMais();
 		//Guardar o valor do PC
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -349,7 +349,7 @@ public class Architecture {
 		PC.read();
 		IR.store();
 		//Devolver o valor do PC, e pegar o endereço para armazenar o valor da soma
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalStore();
 		PC.read();
 		memory.read();
@@ -365,7 +365,7 @@ public class Architecture {
 
 		//Guardar o valor do PC
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -373,7 +373,7 @@ public class Architecture {
 		PC.internalRead();
 		ula.internalStore(0);
 		//Devolver o valor do PC e fazer o PC ++
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalStore();
 		pcMaisMais();
 		//Pegar o ID do registrador e jogar seu valor na ULA
@@ -426,7 +426,7 @@ public class Architecture {
 		pcMaisMais();
 
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		
 
 
@@ -436,7 +436,7 @@ public class Architecture {
 		PC.externalStore();
 		PC.internalRead();
 		ula.internalStore(0);
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalRead();
 		pcMaisMais();
 		
@@ -468,7 +468,7 @@ public class Architecture {
 		pcMaisMais();
 		//Guardar o valor do PC
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -484,7 +484,7 @@ public class Architecture {
 		PC.read();
 		IR.store();
 		//Devolver o valor do PC, e pegar o endereço para armazenar o valor da soma
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalStore();
 		PC.read();
 		memory.read();
@@ -500,7 +500,7 @@ public class Architecture {
 
 		//Guardar o valor do PC
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -508,7 +508,7 @@ public class Architecture {
 		PC.internalRead();
 		ula.internalStore(0);
 		//Devolver o valor do PC e fazer o PC ++
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalStore();
 		pcMaisMais();
 		//Pegar o ID do registrador e jogar seu valor na ULA
@@ -570,7 +570,7 @@ public class Architecture {
 		pcMaisMais(); 
 		//guardar o pc no Stack
 		PC.internalRead();
-		StackBotton.store();
+		setDataStackTop();
 		//pegar o valor da memoria e jogar na ula, atravessando o rio nilo e o PC
 		PC.read(); 
 		memory.read(); 
@@ -579,7 +579,7 @@ public class Architecture {
 		PC.internalRead();
 		ula.internalStore(0);
 		//resgatar o valor do PC
-		StackBotton.read();
+		getDataStackTop();
 		PC.internalRead();
 		pcMaisMais();
 		//jogar o valor da memoria no registrador
@@ -844,14 +844,14 @@ public class Architecture {
 		ula.internalStore(1);
 		ula.inc();
 		ula.internalRead(1);
-		StackTop.store();
+		setDataStackTop();
 		PC.read();
 		memory.read();
 		PC.store();
 	}
 
 	public void ret() {
-		StackTop.read();
+		getDataStackTop();
 		PC.internalStore();
 	}
 
