@@ -951,46 +951,44 @@ public class Architecture {
 	 * according the command.
 	 * And the execute proccess, that is the execution itself of the command
 	 */
-	private void decodeExecute() {   // MODIFICAR
+	private void decodeExecute() {   
 		IR.internalRead(); //the instruction is in the internalbus2
 		int command = intbus2.get();
 		simulationDecodeExecuteBefore(command);
 
 		switch (command) {
-		case 0:
-			add();
-			break;
-		case 1:
-			sub();
-			break;
-		case 2:
-			jmp();
-			break;
-		case 3:
-			jz();
-			break;
-		case 4:
-			jn();
-			break;
-		case 5:
-			read();
-			break;
-		case 6:
-			store();
-			break;
-		case 7:
-			ldi();
-			break;
-		case 8:
-			inc();
-			break;
-		case 9:
-			moveRegReg();
-			break;
-		default:
-			halt = true;
-			break;
+			case 0: addRegReg(); break;
+			case 1: addMemReg(); break;
+			case 2: addRegMem(); break;
+			case 3: addImmReg(); break;
+
+			case 4: subRegReg(); break;
+			case 5: subMemReg(); break;
+			case 6: subRegMem(); break;
+			case 7: subImmReg(); break;
+
+			case 8:  moveMemReg(); break;
+			case 9:  moveRegMem(); break;
+			case 10: moveRegReg(); break;
+			case 11: moveImmReg(); break;
+
+			case 12: inc(); break;
+
+			case 13: jmp(); break;
+			case 14: jz(); break;
+			case 15: jn(); break;
+
+			case 16: jeq(); break;
+			case 17: jneq(); break;
+			case 18: jgt(); break;
+			case 19: jlw(); break;
+
+			case 20: call(); break;
+			case 21: ret();  break;
+
+			default: halt = true; break;
 		}
+		
 		if (simulation)
 			simulationDecodeExecuteAfter();
 	}
