@@ -51,11 +51,11 @@ public class Architecture {
 		PC = new Register("PC", extbus1, intbus2);
 		IR = new Register("IR", extbus1);
 		RPG = new Register("RPG0", extbus1, intbus1);
-		RPG1 = new Register ("RPG1", extbus1, intbus1);
-		RPG2 = new Register ("RPG2", extbus1, intbus1);
-		RPG3 = new Register ("RPG3", extbus1, intbus1);
-		Flags = new Register (2, intbus2);
-		StackBotton = new Register("StackBotton", intbus2, intbus2);   // modifiquei
+		RPG1 = new Register("RPG1", extbus1, intbus1);
+		RPG2 = new Register("RPG2", extbus1, intbus1);
+		RPG3 = new Register("RPG3", extbus1, intbus1);
+		Flags = new Register(2, intbus2);
+		StackBotton = new Register("StackBotton", intbus2, intbus2);   
 		StackTop = new Register("StackTop", intbus2, intbus2);
 		fillRegistersList();
 
@@ -170,11 +170,11 @@ public class Architecture {
 		return commandsList;
 	}
 
-	protected int getDataStackTop() {
+	protected boolean getDataStackTop() {
 		boolean emptyStack = StackTop.getData() == StackBotton.getData();
 
 		if (emptyStack) 
-			return null;
+			return false;
 
 		// StackTop points to a position below  
 		int position = StackTop.getData()+1;
@@ -209,7 +209,6 @@ public class Architecture {
 
 		// Replacing the data on the bus
 		intbus2.put(data);
-
 		return true;
 	}
 
@@ -223,34 +222,34 @@ public class Architecture {
 	protected void fillCommandsList() {    
 		commandsList = new ArrayList<String>();
         
-		commandsList.add("addRegReg");   // 0 -
-		commandsList.add("addMemReg");   // 1 -
-		commandsList.add("addRegMem");   // 2 -
-		commandsList.add("addImmReg");   // 3 -
+		commandsList.add("addRegReg");   // 0 
+		commandsList.add("addMemReg");   // 1 
+		commandsList.add("addRegMem");   // 2 
+		commandsList.add("addImmReg");   // 3 
 
-		commandsList.add("subRegReg");   // 4 -
-		commandsList.add("subMemReg");   // 5 -
-		commandsList.add("subRegMem");   // 6 -
-		commandsList.add("subImmReg");   // 7 -
+		commandsList.add("subRegReg");   // 4 
+		commandsList.add("subMemReg");   // 5 
+		commandsList.add("subRegMem");   // 6 
+		commandsList.add("subImmReg");   // 7 
 
-        commandsList.add("moveMemReg");  // 8 -
-		commandsList.add("moveRegMem");  // 9 -
-		commandsList.add("moveRegReg");  // 10 -
-		commandsList.add("moveImmReg");  // 11 -        
+        commandsList.add("moveMemReg");  // 8 
+		commandsList.add("moveRegMem");  // 9 
+		commandsList.add("moveRegReg");  // 10 
+		commandsList.add("moveImmReg");  // 11         
 
-		commandsList.add("inc");         // 12 -
+		commandsList.add("inc");         // 12 
 
-		commandsList.add("jmp");         // 13 -
-		commandsList.add("jz");          // 14 -
-		commandsList.add("jn");          // 15 -
+		commandsList.add("jmp");         // 13 
+		commandsList.add("jz");          // 14 
+		commandsList.add("jn");          // 15 
 
-        commandsList.add("jeq");         // 16 -  
-        commandsList.add("jneq");        // 17 -
-        commandsList.add("jgt");         // 18 -
-        commandsList.add("jlw");         // 19 -
+        commandsList.add("jeq");         // 16   
+        commandsList.add("jneq");        // 17 
+        commandsList.add("jgt");         // 18 
+        commandsList.add("jlw");         // 19 
 
-        commandsList.add("call");        // 20 -
-        commandsList.add("ret");         // 21 -
+        commandsList.add("call");        // 20 
+        commandsList.add("ret");         // 21 
 	}
 
 	protected void pcMaisMais() {
@@ -266,25 +265,29 @@ public class Architecture {
 	protected void addRegReg() {
 		pcMaisMais();
 
+		// Ula(0) <- REGA
 		PC.read(); 
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register 
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register 
 		ula.store(0);
 
 		pcMaisMais();
 
+		// Ula(1) <- REGB
 		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
 		ula.store(1);
+
 		ula.add();
+
+		// REGB <- UlaAdd
 		ula.internalRead(1);
 		setStatusFlags(intbus2.get());
 		ula.read(1);
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get());   //points to the correct register
 		registersInternalStore();
 
 		pcMaisMais();
@@ -293,26 +296,34 @@ public class Architecture {
 	protected void addMemReg() {
 		pcMaisMais();
 
+		// StackTop <- PC
 		PC.internalRead();
 		setDataStackTop();
 		
+		// Ula(0) <- Mem
 		PC.read(); 
-		memory.read(); // the second register
+		memory.read();     // the second register
 		memory.read();
 		PC.externalStore();
 		PC.internalRead();
 		ula.internalStore(0);
+
+		// PC <- StackTop
 		getDataStackTop();
 		PC.internalRead();
+
 		pcMaisMais();
 		
+		// Ula(1) <- REGA
 		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
 		ula.store(1);
+
 		ula.add();
+
+		// REGA <- UlaAdd
 		ula.internalRead(1);
 		setStatusFlags(intbus2.get());
 		ula.read(1);
@@ -324,16 +335,20 @@ public class Architecture {
 
 	protected void addRegMem() {
 		pcMaisMais();
+
 		//Pegar o valor do registrador e guardar na ULA
 		PC.read();
 		memory.read(); 
 		demux.setValue(extbus1.get()); 
 		registersInternalRead(); 
 		ula.store(0);
+
 		pcMaisMais();
+
 		//Guardar o valor do PC
 		PC.internalRead();
 		setDataStackTop();
+
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -341,6 +356,7 @@ public class Architecture {
 		PC.store();
 		PC.internalRead();
 		ula.internalStore(1);
+
 		//Fazer o add, e passar o valor da soma, pelo pc, e guardar no IR
 		ula.add();
 		ula.internalRead(1);
@@ -348,6 +364,7 @@ public class Architecture {
 		PC.internalStore();
 		PC.read();
 		IR.store();
+
 		//Devolver o valor do PC, e pegar o endereço para armazenar o valor da soma
 		getDataStackTop();
 		PC.internalStore();
@@ -366,22 +383,26 @@ public class Architecture {
 		//Guardar o valor do PC
 		PC.internalRead();
 		setDataStackTop();
+
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
 		PC.store();
 		PC.internalRead();
 		ula.internalStore(0);
+
 		//Devolver o valor do PC e fazer o PC ++
 		getDataStackTop();
 		PC.internalStore();
 		pcMaisMais();
+
 		//Pegar o ID do registrador e jogar seu valor na ULA
 		PC.read();
 		memory.read();
 		demux.setValue(extbus1.get()); //points to the correct register
 		registersInternalRead(); //starts the read from the register
 		ula.store(1);
+
 		//Fazer o add, e passar o valor da soma para o registrador
 		ula.add();
 		ula.internalRead(1);
@@ -398,25 +419,29 @@ public class Architecture {
 	protected void subRegReg() {
 		pcMaisMais();
 
+		// Ula(0) <- REGA
 		PC.read(); 
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register 
+		memory.read();                   // the second register
+		demux.setValue(extbus1.get());   //points to the correct register
+		registersInternalRead();         //starts the read from the register 
 		ula.store(0);
 
 		pcMaisMais();
 
+		// Ula(1) <- REGB
 		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
 		ula.store(1);
+
 		ula.sub();
+
+		// REGB <- UlaSub
 		ula.internalRead(1);
 		setStatusFlags(intbus2.get());
 		ula.read(1);
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get());  //points to the correct register
 		registersInternalStore();
 
 		pcMaisMais();
@@ -425,33 +450,38 @@ public class Architecture {
 	protected void subMemReg() {
 		pcMaisMais();
 
+		// StackTop <- PC
 		PC.internalRead();
 		setDataStackTop();
 		
-
-
+		// Ula(0) <- Mem
 		PC.read(); 
-		memory.read(); // the second register
+		memory.read();      // the second register
 		memory.read();
 		PC.externalStore();
 		PC.internalRead();
 		ula.internalStore(0);
+
+		// PC <- StackTop
 		getDataStackTop();
 		PC.internalRead();
+
 		pcMaisMais();
 		
+		// Ula(1) <- REGA
 		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
 		ula.store(1);
 		
 		ula.sub();
+
+		// REGB <- UlaSub
 		ula.internalRead(1);
 		setStatusFlags(intbus2.get());
 		ula.read(1);
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get());  //points to the correct register
 		registersInternalStore();
 
 		pcMaisMais();
@@ -459,16 +489,20 @@ public class Architecture {
 
 	protected void subRegMem() {
 		pcMaisMais();
+
 		//Pegar o valor do registrador e guardar na ULA
 		PC.read();
 		memory.read(); 
 		demux.setValue(extbus1.get()); 
 		registersInternalRead(); 
 		ula.store(0);
+
 		pcMaisMais();
+
 		//Guardar o valor do PC
 		PC.internalRead();
 		setDataStackTop();
+
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
@@ -476,6 +510,7 @@ public class Architecture {
 		PC.store();
 		PC.internalRead();
 		ula.internalStore(1);
+
 		//Fazer o sub, e passar o valor da soma, pelo pc, e guardar no IR
 		ula.sub();
 		ula.internalRead(1);
@@ -483,6 +518,7 @@ public class Architecture {
 		PC.internalStore();
 		PC.read();
 		IR.store();
+
 		//Devolver o valor do PC, e pegar o endereço para armazenar o valor da soma
 		getDataStackTop();
 		PC.internalStore();
@@ -501,22 +537,27 @@ public class Architecture {
 		//Guardar o valor do PC
 		PC.internalRead();
 		setDataStackTop();
+
 		//Pegar o valor da memória, passar pelo PC, e meter na ULA
 		PC.read();
 		memory.read();
 		PC.store();
 		PC.internalRead();
 		ula.internalStore(0);
+
 		//Devolver o valor do PC e fazer o PC ++
 		getDataStackTop();
 		PC.internalStore();
+
 		pcMaisMais();
+
 		//Pegar o ID do registrador e jogar seu valor na ULA
 		PC.read();
 		memory.read();
 		demux.setValue(extbus1.get()); //points to the correct register
 		registersInternalRead(); //starts the read from the register
 		ula.store(1);
+
 		//Fazer o sub, e passar o valor da soma para o registrador
 		ula.sub();
 		ula.internalRead(1);
@@ -566,11 +607,12 @@ public class Architecture {
 
 
 	public void moveMemReg() {
-
 		pcMaisMais(); 
+
 		//guardar o pc no Stack
 		PC.internalRead();
 		setDataStackTop();
+
 		//pegar o valor da memoria e jogar na ula, atravessando o rio nilo e o PC
 		PC.read(); 
 		memory.read(); 
@@ -578,32 +620,41 @@ public class Architecture {
 		PC.externalStore();
 		PC.internalRead();
 		ula.internalStore(0);
+
 		//resgatar o valor do PC
 		getDataStackTop();
 		PC.internalRead();
+
 		pcMaisMais();
+
 		//jogar o valor da memoria no registrador
 		ula.read(0);
 		PC.read();
 		memory.read(); 
 		demux.setValue(extbus1.get());
 		registersInternalStore();
+
 		pcMaisMais(); 
 	}
 
 	public void moveRegMem() {
 		pcMaisMais();
+
 		//pegar o id do registrador, e aguardar o comando
 		PC.read();
 		memory.read(); 
 		demux.setValue(extbus1.get());
+
 		pcMaisMais();
-		//pegar o endereço de memoria, e dar o comando pro registrador cuspir seu dado, guardando na memoria
+
+		//pegar o endereço de memoria, e dar o comando pro registrador
+		//cuspir seu dado, guardando na memoria
 		PC.read();
 		memory.read();
 		memory.store();
 		registersRead();
 		memory.store();
+		
 		pcMaisMais(); 
 	}
 
@@ -666,46 +717,75 @@ public class Architecture {
 
 	public void inc() {
 		pcMaisMais();
+
+		// Ula(1) <- REGA
 		PC.read();
 		memory.read();
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get());   //points to the correct register
 		registersInternalRead();
 		ula.store(1);
+
 		ula.inc();
+		
+		// REGA <- UlaInc
 		ula.read(1);
 		setStatusFlags(intbus1.get());
-		demux.setValue(extbus1.get()); //points to the correct register
+		demux.setValue(extbus1.get());   //points to the correct register
 		registersInternalStore();
+
 		pcMaisMais();
 	}
 
 	// Desvios
 
 	public void jmp() {
-		//PC++
 		pcMaisMais();
 
-		//Mem -> PC
+		// PC <- Mem
 		memory.read();
 		PC.store();
 	}
 
 	public void jn() {
-		//PC++
+		// pcMaisMais();
+
+		// if (Flags.getBit(1)==1) {
+		// 	PC.read();
+		// 	memory.read();
+		// 	PC.store();
+		// }
+		// else{
+		// 	pcMaisMais();
+		// }
+
 		pcMaisMais();
-		if (Flags.getBit(1)==1) {
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			//PC++
-			pcMaisMais();
-		}
+
+		// stm(1) <- desvio
+		PC.read();
+		memory.read();
+		statusMemory.storeIn1();
+
+		// stm(0) <- PC+1
+		ula.inc();
+		ula.internalRead();
+		PC.internalStore();
+		PC.read();
+		statusMemory.storeIn0();
+
+		// stm -> PC
+		stm();
+		PC.store();
+	}
+
+	public void stm() {
+		// Se bit 1 = 1, pegamos o valor da memória de status na posição 1 (desvio)
+		// Se bit 1 = 0, pegamos o valor da memória de status na posição 0 (PC+1)
+		int position = statusMemory.getDataList()[Flags.getBit(1)];
+
+		extbus1.put(position);
 	}
 
 	public void jz() {
-		//PC++
 		pcMaisMais();
 
 		if (Flags.getBit(0)==1) {
@@ -840,17 +920,20 @@ public class Architecture {
 
     public void call() {
 		pcMaisMais();
-		PC.internalRead();
-		ula.internalStore(1);
+
+		// StackTop <- PC+1
 		ula.inc();
 		ula.internalRead(1);
 		setDataStackTop();
+
+		// PC <- Mem
 		PC.read();
 		memory.read();
 		PC.store();
 	}
 
 	public void ret() {
+		// PC <- StackTop
 		getDataStackTop();
 		PC.internalStore();
 	}
@@ -1001,23 +1084,40 @@ public class Architecture {
 	private void simulationDecodeExecuteBefore(int command) {
 		System.out.println("----------BEFORE Decode and Execute phases--------------");
 		String instruction;
-		int parameter = 0;
+		int parameter  = 0;
+		int parameter2 = 0;
+		int parameter3 = 0;
+
 		for (Register r:registersList) {
 			System.out.println(r.getRegisterName()+": "+r.getData());
 		}
+
 		if (command !=-1)
 			instruction = commandsList.get(command);
 		else
 			instruction = "END";
+			
 		if (hasOperands(instruction)) {
 			parameter = memory.getDataList()[PC.getData()+1];
-			System.out.println("Instruction: "+instruction+" "+parameter);
+
+			if (hasOneOperand(command)) 
+				System.out.println("Instruction: "+instruction+" "+parameter);
+			else {
+				parameter2 = memory.getDataList()[PC.getData()+2];
+
+				if (hasTwoOperands(command)) 
+					System.out.println("Instruction: "+instruction+" "+parameter+
+																   " "+parameter2);
+				else {
+					parameter3 = memory.getDataList()[PC.getData()+3];
+					System.out.println("Instruction: "+instruction+" "+parameter+
+																   " "+parameter2+
+																   " "+parameter3);
+				}
+			}
 		}
-		else
+		else 
 			System.out.println("Instruction: "+instruction);
-		if ("read".equals(instruction))
-			System.out.println("memory["+parameter+"]="+memory.getDataList()[parameter]);
-		
 	}
 
 	/**
@@ -1071,10 +1171,25 @@ public class Architecture {
 	 * @return
 	 */
 	private boolean hasOperands(String instruction) {
-		if ("inc".equals(instruction)) //inc is the only one instruction having no operands
+		if ("ret".equals(instruction))   //ret is the only one instruction having no operands
 			return false;
 		else
 			return true;
+	}
+
+	private boolean hasOneOperand(int command) {
+		if (command>=12 && command<=15 ||
+			command==20)   
+			return true;
+		else
+			return false;
+	}
+
+	private boolean hasTwoOperands(int command) {
+		if (command>=0 && command<=11)   
+			return true;
+		else
+			return false;
 	}
 
 	/**
