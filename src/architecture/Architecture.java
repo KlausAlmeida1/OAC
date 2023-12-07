@@ -49,7 +49,7 @@ public class Architecture {
 		intbus2 = new Bus();
 
 		PC = new Register("PC", extbus1, intbus2);
-		IR = new Register("IR", extbus1);
+		IR = new Register("IR", extbus1, extbus1);
 		RPG = new Register("RPG0", extbus1, intbus1);
 		RPG1 = new Register("RPG1", extbus1, intbus1);
 		RPG2 = new Register("RPG2", extbus1, intbus1);
@@ -118,7 +118,7 @@ public class Architecture {
 		return intbus1;
 	}
 
-	protected Bus getIntbus2() {
+	public Bus getIntbus2() {
 		return intbus2;
 	}
 
@@ -193,7 +193,7 @@ public class Architecture {
 	}
 
 	protected boolean setDataStackTop() {
-		boolean fullMemory = memory.getDataList()[StackTop] != 0;
+		boolean fullMemory = memory.getDataList()[StackTop.getData()] != 0;
 
 		if (fullMemory) 
 			return false;
@@ -225,7 +225,7 @@ public class Architecture {
 		commandsList.add("addRegReg");   // 0 
 		commandsList.add("addMemReg");   // 1 
 		commandsList.add("addRegMem");   // 2 
-		commandsList.add("addImmReg");   // 3 
+		commandsList.add("addImmReg");   // 3  -
 
 		commandsList.add("subRegReg");   // 4 
 		commandsList.add("subMemReg");   // 5 
@@ -304,7 +304,7 @@ public class Architecture {
 		PC.read(); 
 		memory.read();     // the second register
 		memory.read();
-		PC.externalStore();
+		PC.store();
 		PC.internalRead();
 		ula.internalStore(0);
 
@@ -458,7 +458,7 @@ public class Architecture {
 		PC.read(); 
 		memory.read();      // the second register
 		memory.read();
-		PC.externalStore();
+		PC.store();
 		PC.internalRead();
 		ula.internalStore(0);
 
@@ -617,7 +617,7 @@ public class Architecture {
 		PC.read(); 
 		memory.read(); 
 		memory.read();
-		PC.externalStore();
+		PC.store();
 		PC.internalRead();
 		ula.internalStore(0);
 
@@ -746,20 +746,7 @@ public class Architecture {
 		PC.store();
 	}
 
-	public void jn() {
-		// pcMaisMais();
-
-		// if (Flags.getBit(1)==1) {
-		// 	PC.read();
-		// 	memory.read();
-		// 	PC.store();
-		// }
-		// else{
-		// 	pcMaisMais();
-		// }
-
-		pcMaisMais();
-
+	public void stm(int qnt_bit, int a, int b) {
 		// stm(1) <- desvio
 		PC.read();
 		memory.read();
@@ -767,155 +754,97 @@ public class Architecture {
 
 		// stm(0) <- PC+1
 		ula.inc();
-		ula.internalRead();
+		ula.internalRead(1);
 		PC.internalStore();
 		PC.read();
 		statusMemory.storeIn0();
 
-		// stm -> PC
-		stm();
-		PC.store();
-	}
+		int position;
 
-	public void stm() {
-		// Se bit 1 = 1, pegamos o valor da memória de status na posição 1 (desvio)
-		// Se bit 1 = 0, pegamos o valor da memória de status na posição 0 (PC+1)
-		int position = statusMemory.getDataList()[Flags.getBit(1)];
+		// Analisando 1 bit
+		if (qnt_bit==1) {   // a = bit, b = desvio
+			if (Flags.getBit(a) == b) 
+				position = statusMemory.getDataList()[1];        // Desvio
+			else 
+				position = statusMemory.getDataList()[0];        // PC++
+		}
+		// Analisando 2 bits
+		else {   // a = desvio de bit z, b = desvio de bit n
+			if (Flags.getBit(0) == a &&
+				Flags.getBit(1) == b) 
+				position = statusMemory.getDataList()[1];        // Desvio
+			else 
+				position = statusMemory.getDataList()[0];        // PC++
+		}
 
 		extbus1.put(position);
 	}
 
-	public void jz() {
+	public void jz() {   // Desvia se bit z=1
 		pcMaisMais();
 
-		if (Flags.getBit(0)==1) {
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			//PC++
-			pcMaisMais();
-		}
+		// PC <- stm
+		stm(1,0,1);                  // 1 = um bit, 0 = bit z, 1 = valor de devio
+		PC.store();
+	}
+
+	public void jn() {   // Desvia se bit n=1
+		pcMaisMais();
+
+		// PC <- stm 
+		stm(1,1,1);                  // 1 = um bit, 1 = bit n, 1 = valor de desvio
+		PC.store();
+	}
+
+	public void jRegReg() {
+		// Ula(0) <- REGA
+		PC.read();
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
+		ula.store(0);
+
+		pcMaisMais();
+
+		// Ula(1) <- REGB
+		PC.read();
+		memory.read();                  // the second register
+		demux.setValue(extbus1.get());  //points to the correct register
+		registersInternalRead();        //starts the read from the register
+		ula.store(1);
+
+		ula.sub();
+
+		ula.internalRead(1);
+		setStatusFlags(intbus2.get());
 	}
 	
-	public void jeq() {
+	public void jeq() {   // Desvia se RegA==RegB -> bit z=1
 		pcMaisMais();
-
-		PC.read(); 
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register 
-		ula.store(0);
-
-		pcMaisMais();
-
-		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
-		ula.store(1);
-		ula.sub();
-		ula.internalRead(1);
-		setStatusFlags(intbus2.get());
-		
-
-		if (Flags.getBit(0)==1) {
-			pcMaisMais();
-
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			pcMaisMais();
-
-		}
+		jRegReg();
+		stm(1,0,1);         // 1 = analisa um bit, 0 = bit z, 1 = desvio do bit z
+		PC.store();
 	}
 
-	public void jnz() {
-		//PC++
+	public void jneq() {   // Desvia se RegA!=RegB -> bit z=0
 		pcMaisMais();
-
-		if (Flags.getBit(0)!=1) {
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			//PC++
-			pcMaisMais();
-		}
+		jRegReg();
+		stm(1,0,0);         // 1 = analisa um bit, 0 = bit z, 0 = desvio do bit z
+		PC.store();
 	}
 
-	public void jgt() {
+	public void jgt() {   // Desvia se RegA>RegB -> os dois bis são 0
 		pcMaisMais();
-
-		PC.read(); 
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register 
-		ula.store(0);
-
-		pcMaisMais();
-
-		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
-		ula.store(1);
-		ula.sub();
-		ula.internalRead(1);
-		setStatusFlags(intbus2.get());
-		
-
-		if (Flags.getBit(0)==0 && Flags.getBit(1)==0) {
-			pcMaisMais();
-
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			pcMaisMais();
-
-		}
+		jRegReg();
+		stm(2,0,0);         // 2 = analisa 2 bits, 0 = desvio do bit z, 0 = desvio do bit n
+		PC.store();
 	}
 
-	public void jlw() {
+	public void jlw() {   // Desvia se RegA<RegB -> bit z=0, bit n=1
 		pcMaisMais();
-
-		PC.read(); 
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register 
-		ula.store(0);
-
-		pcMaisMais();
-
-		PC.read();
-		memory.read(); // the second register
-		demux.setValue(extbus1.get()); //points to the correct register
-		registersInternalRead(); //starts the read from the register
-
-		ula.store(1);
-		ula.sub();
-		ula.internalRead(1);
-		setStatusFlags(intbus2.get());
-		
-
-		if (Flags.getBit(1)==1) {
-			pcMaisMais();
-			PC.read();
-			memory.read();
-			PC.store();
-		}
-		else{
-			pcMaisMais();
-
-		}
+		jRegReg();
+		stm(2,0,1);         // 2 = Analisa 2 bits, 0 = desvio do bit z, 1 = desvio do bit n
+		PC.store();
 	}
 
     public void call() {
@@ -1004,16 +933,30 @@ public class Architecture {
 		BufferedReader br = new BufferedReader(new		 
 		FileReader(filename+".dxf"));
 		String linha;
-		int i=0;
+		int i=0, ok=0;
 
-		while ((linha = br.readLine()) != null) {
+		do {
+			linha = br.readLine();
 			extbus1.put(i);
 			memory.store();
-			extbus1.put(Integer.parseInt(linha));
+			ok = Integer.parseInt(linha);
+			extbus1.put(ok);
 			memory.store();
 			i++;
-		}
+		} while (ok != -1);
+		
+		// Guarda a posição da Stack e a inicializa
+		linha = br.readLine();
+		int position_Stack = Integer.parseInt(linha);
+		initializeStack(position_Stack);
+
 		br.close();
+	}
+
+	protected void initializeStack(int position) {	
+		intbus2.put(position);
+		StackTop.store();
+		StackBotton.store();
 	}
 	
 	/**
@@ -1036,7 +979,7 @@ public class Architecture {
 	 */
 	private void decodeExecute() {   
 		IR.internalRead(); //the instruction is in the internalbus2
-		int command = intbus2.get();
+		int command = extbus1.get();
 		simulationDecodeExecuteBefore(command);
 
 		switch (command) {
@@ -1058,13 +1001,13 @@ public class Architecture {
 			case 12: inc(); break;
 
 			case 13: jmp(); break;
-			case 14: jz(); break;
-			case 15: jn(); break;
+			case 14: jz();  break;
+			case 15: jn();  break;
 
-			case 16: jeq(); break;
+			case 16: jeq();  break;
 			case 17: jneq(); break;
-			case 18: jgt(); break;
-			case 19: jlw(); break;
+			case 18: jgt();  break;
+			case 19: jlw();  break;
 
 			case 20: call(); break;
 			case 21: ret();  break;
@@ -1204,7 +1147,7 @@ public class Architecture {
 	
 	public static void main(String[] args) throws IOException {
 		Architecture arch = new Architecture(true);
-		arch.readExec("program");
+		arch.readExec("t2");
 		arch.controlUnitEexec();
 	}
 }
