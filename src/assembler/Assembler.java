@@ -95,15 +95,15 @@ public class Assembler {
 	 * @throws IOException 
 	 */
 	public void read(String filename) throws IOException {
-		   BufferedReader br = new BufferedReader(new		 
-		   FileReader(filename+".dsf"));
-		   String linha;
+		BufferedReader br = new BufferedReader(new		 
+		FileReader(filename+".dsf"));
+		String linha;
 
-		   while ((linha = br.readLine()) != null) {
-			     lines.add(linha);
-			}
+		while ((linha = br.readLine()) != null) {
+			lines.add(linha);
+		}
 
-			br.close();	
+		br.close();	
 	}
 	
 
@@ -262,6 +262,9 @@ public class Assembler {
 		if (!parameter2.isEmpty()) {
 			objProgram.add(parameter2);
 		}
+		if (!parameter3.isEmpty()) { 
+			objProgram.add(parameter3);
+		}
 	}
 
 	/**
@@ -278,9 +281,9 @@ public class Assembler {
 		if (p<0){ //the command isn't in the list. So it must have multiple formats
 			if ("move".equals(tokens[0])) //the command is a move
 				p = proccessMove(tokens);
-			else if("add".equals(tokens[0]))
+			else if ("add".equals(tokens[0]))
 				p = proccessAdd(tokens);
-			else if("sub".equals(tokens[0]))
+			else if ("sub".equals(tokens[0]))
 				p = proccessSub(tokens);
 		}
         
@@ -313,7 +316,7 @@ public class Assembler {
 		
 		return p;
 	}
-
+    
     private int proccessAdd(String[] tokens) {
 		String p1 = tokens[1];
 		String p2 = tokens[2];
@@ -375,10 +378,10 @@ public class Assembler {
             return;
 
 		execProgram = (ArrayList<String>) objProgram.clone();
-		replaceAllVariables();
+		int position_Stack = replaceAllVariables();
 		replaceLabels(); //replacing all labels by the address they refer to
 		replaceRegisters(); //replacing all registers by the register id they refer to
-		saveExecFile(filename);
+		saveExecFile(filename, position_Stack);
 		System.out.println("Finished");
 	}
 
@@ -404,13 +407,15 @@ public class Assembler {
 	 * The addresses o0f the variables startes in the end of the memory
 	 * and decreases (creating a stack)
 	 */
-	protected void replaceAllVariables() {
+	protected int replaceAllVariables() {
 		int position = arch.getMemorySize()-1; //starting from the end of the memory
 
 		for (String var : this.variables) { //scanning all variables
 			replaceVariable(var, position);
-			position --;
+			position--;
 		}
+
+		return position;
 	}
 
 	/**
@@ -418,14 +423,18 @@ public class Assembler {
 	 * @param filename
 	 * @throws IOException 
 	 */
-	private void saveExecFile(String filename) throws IOException {
+	private void saveExecFile(String filename, int position_Stack) throws IOException {
 		File file = new File(filename+".dxf");
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		for (String l : execProgram)
 			writer.write(l+"\n");
-		writer.write("-1"); //-1 is a flag indicating that the program is finished
+		writer.write("-1\n"); //-1 is a flag indicating that the program is finished
+
+		// Adicionando, após o fim do programa, a posição da fila
+		String p = Integer.toString(position_Stack);
+		writer.write(p);
+
 		writer.close();
-		
 	}
 
 	/**
@@ -512,7 +521,7 @@ public class Assembler {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String filename = args[0];
+		String filename = "t2";
 		Assembler assembler = new Assembler();
 		System.out.println("Reading source assembler file: "+filename+".dsf");
 		assembler.read(filename);
