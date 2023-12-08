@@ -301,16 +301,12 @@ public class Assembler {
 		String p2 = tokens[2];
 		int p=-1;
 
-		if ((p1.startsWith("%"))&&(p2.startsWith("%"))) {   // this is a moveRegReg comand
-			p = commands.indexOf("moveRegReg");
-		} 
-        else if(p1.startsWith("&")) {                       // this is a moveMemReg comand
+		if ((p1.startsWith("%"))&&(p2.startsWith("%")))    // this is a moveRegReg comand
+			p = commands.indexOf("moveRegReg"); 
+        else if(p1.startsWith("&"))                        // this is a moveMemReg comand
 			p = commands.indexOf("moveMemReg");
-		}
-        else if (p1.startsWith("%")) {                      // this is a moveRegMem comand
-			p2 = "&" + p2;
+        else if (p1.startsWith("%"))                       // this is a moveRegMem comand
 			p = commands.indexOf("moveRegMem");
-		}
         else                                                // this is a moveImmReg comand
 			p = commands.indexOf("moveImmReg");
 		
@@ -322,18 +318,13 @@ public class Assembler {
 		String p2 = tokens[2];
 		int p=-1;
 
-		if ((p1.startsWith("%"))&&(p2.startsWith("%"))) {   //this is a addRegReg comand
+		if ((p1.startsWith("%"))&&(p2.startsWith("%")))    //this is a addRegReg comand
 			p = commands.indexOf("addRegReg");
-		}
-        else if (p1.startsWith("&")) {                      //this is a addMemReg comand
-            p1 = "&" + p1;
+        else if (p1.startsWith("&"))                       //this is a addMemReg comand
             p = commands.indexOf("addMemReg");
-		}
-        else if (p1.startsWith("%")) {                      //this is a addRegMem comand
-            p2 = "&" + p2;
+        else if (p1.startsWith("%"))                       //this is a addRegMem comand
             p = commands.indexOf("addRegMem");
-        }
-        else                                                // this is a moveImmReg comand
+        else                                               // this is a moveImmReg comand
             p = commands.indexOf("addImmReg");
         
 		return p;
@@ -344,18 +335,13 @@ public class Assembler {
 		String p2 = tokens[2];
 		int p=-1;
 
-		if ((p1.startsWith("%"))&&(p2.startsWith("%"))) {   //this is a addRegReg comand
+		if ((p1.startsWith("%"))&&(p2.startsWith("%")))    //this is a addRegReg comand
 			p = commands.indexOf("subRegReg");
-		}
-        else if (p1.startsWith("&")) {                      //this is a subMemReg comand
-            p1 = "&" + p1;
+        else if (p1.startsWith("&"))                       //this is a subMemReg comand
             p = commands.indexOf("subMemReg");
-        }
-        else if (p1.startsWith("%")) {                      //this is a subRegMem comand
-            p2 = "&" + p2;
+        else if (p1.startsWith("%"))                       //this is a subRegMem comand
             p = commands.indexOf("subRegMem");
-        }
-        else                                                //this is a subImmReg comand
+        else                                               //this is a subImmReg comand
             p = commands.indexOf("subImmReg");	
 	
 		return p;
@@ -521,7 +507,7 @@ public class Assembler {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String filename = "t2";
+		String filename = "program";
 		Assembler assembler = new Assembler();
 		System.out.println("Reading source assembler file: "+filename+".dsf");
 		assembler.read(filename);
