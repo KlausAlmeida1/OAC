@@ -678,9 +678,11 @@ public class Architecture {
 
 	public void moveImmReg() {
 		pcMaisMais(); 
+
 		PC.read();
 		memory.read();
 		IR.store();
+		
 		pcMaisMais();
 		PC.read();
 		memory.read();
@@ -1013,21 +1015,23 @@ public class Architecture {
 		FileReader(filename+".dxf"));
 		String linha;
 		int i=0, ok=0;
+		int position_Stack;
 
-		do {
-			linha = br.readLine();
-			extbus1.put(i);
-			memory.store();
-			ok = Integer.parseInt(linha);
-			extbus1.put(ok);
-			memory.store();
-			i++;
-		} while (ok != -1);
-		
-		// Guarda a posição da Stack e a inicializa
-		linha = br.readLine();
-		int position_Stack = Integer.parseInt(linha);
-		initializeStack(position_Stack);
+		while((linha = br.readLine()) != null) {
+			if (ok!=-1) {
+				extbus1.put(i);
+				memory.store();
+				ok = Integer.parseInt(linha);
+				extbus1.put(ok);
+				memory.store();
+				i++;
+			}
+			else { 
+				// Guarda a posição da Stack e a inicializa
+				position_Stack = Integer.parseInt(linha);
+				initializeStack(position_Stack);
+			}
+		}
 
 		br.close();
 	}
@@ -1226,7 +1230,7 @@ public class Architecture {
 	
 	public static void main(String[] args) throws IOException {
 		Architecture arch = new Architecture(true);
-		arch.readExec("t2");
+		arch.readExec("program");
 		arch.controlUnitEexec();
 	}
 }
