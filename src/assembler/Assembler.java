@@ -150,7 +150,7 @@ public class Assembler {
 		}
 
 		if (commandNumber == 1) { //must to proccess an addMemReg command
-			parameter = "&" + tokens[1];	
+			parameter = tokens[1];	
             parameter2 = tokens[2];	
 		}
 
@@ -170,7 +170,7 @@ public class Assembler {
 		}
 
         if (commandNumber == 5) { //must to proccess an subMemReg command
-			parameter = "&" + tokens[1];	
+			parameter = tokens[1];	
             parameter2 = tokens[2];	
 		}
 
@@ -185,7 +185,7 @@ public class Assembler {
 		}
 
         if (commandNumber == 8) { //must to proccess an moveMemReg command
-			parameter = "&" + tokens[1];
+			parameter = tokens[1];
 			parameter2 = tokens[2];
 		}
 
@@ -205,7 +205,7 @@ public class Assembler {
 		}
 
         if (commandNumber == 12) { //must to proccess an inc command
-			
+			parameter = tokens[1];
 		}
 
 		if (commandNumber == 13) { //must to proccess an jmp command
@@ -305,7 +305,7 @@ public class Assembler {
 			p = commands.indexOf("moveRegReg");
 		} 
         else if(p1.startsWith("&")) {                       // this is a moveMemReg comand
-				p = commands.indexOf("moveMemReg");
+			p = commands.indexOf("moveMemReg");
 		}
         else if (p1.startsWith("%")) {                      // this is a moveRegMem comand
 			p2 = "&" + p2;
