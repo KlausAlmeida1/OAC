@@ -812,7 +812,7 @@ public class Architecture {
         }
         else{
             pcMaisMais();
-
+			pcMaisMais();
         }
     }
 
@@ -847,7 +847,7 @@ public class Architecture {
         }
         else{
             pcMaisMais();
-
+			pcMaisMais();
         }
     }
 
@@ -882,6 +882,7 @@ public class Architecture {
         }
         else{
             pcMaisMais();
+			pcMaisMais();
         }
     }
 
@@ -915,7 +916,7 @@ public class Architecture {
         }
         else{
             pcMaisMais();
-
+			pcMaisMais();
         }
     }
 
@@ -935,8 +936,14 @@ public class Architecture {
 
 	public void ret() {
 		// PC <- StackTop
-		getDataStackTop();
-		PC.internalStore();
+		if(StackTop.getData() == StackBotton.getData()){
+			pcMaisMais();
+		}
+		else{
+			getDataStackTop();
+			PC.internalStore();
+		}
+		
 	}
 
 
